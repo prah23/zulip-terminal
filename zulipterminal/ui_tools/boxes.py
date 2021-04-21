@@ -638,9 +638,9 @@ class WriteBox(urwid.Pile):
                     if not all_valid:
                         return key
                     self.update_recipients(self.to_write_box)
-                    if self.recipient_emails:
+                    if self.recipient_user_ids:
                         success = self.model.send_private_message(
-                            recipients=self.recipient_emails,
+                            recipients=self.recipient_user_ids,
                             content=self.msg_write_box.edit_text,
                         )
                     else:
@@ -671,7 +671,7 @@ class WriteBox(urwid.Pile):
                     self.update_recipients(self.to_write_box)
                     this_draft: Composition = PrivateComposition(
                         type="private",
-                        to=self.recipient_emails,
+                        to=self.recipient_user_ids,
                         content=self.msg_write_box.edit_text,
                     )
                 elif self.stream_id:

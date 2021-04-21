@@ -364,7 +364,7 @@ def test_display_error_if_present(mocker, response, footer_updated):
     "req, narrow, footer_updated",
     [
         case(
-            {"type": "private", "to": ["foo@gmail.com"], "content": "bar"},
+            {"type": "private", "to": [1], "content": "bar"},
             [["is", "private"]],
             False,
             id="all_private__pm__not_notified",
@@ -372,26 +372,28 @@ def test_display_error_if_present(mocker, response, footer_updated):
         case(
             {
                 "type": "private",
-                "to": ["foo@zulip.com", "bar@zulip.com"],
+                "to": [4, 5],
                 "content": "Hi",
             },
-            [["pm_with", "foo@zulip.com, bar@zulip.com"]],
+            [["pm_with", "welcome-bot@zulip.com, notification-bot@zulip.com"]],
             False,
             id="group_private_conv__same_group_pm__not_notified",
         ),
         case(
-            {
-                "type": "private",
-                "to": ["user@abc.com", "user@chat.com"],
-                "content": "Hi",
-            },
-            [["pm_with", "user@0abc.com"]],
+            {"type": "private", "to": [4, 5], "content": "Hi"},
+            [["pm_with", "welcome-bot@zulip.com"]],
             True,
             id="private_conv__other_pm__notified",
         ),
         case(
-            {"type": "private", "to": ["bar-bar@foo.com"], "content": ":party_parrot:"},
-            [["pm_with", "user@abc.com, user@chat.com, bar-bar@foo.com"]],
+            {"type": "private", "to": [4], "content": ":party_parrot:"},
+            [
+                [
+                    "pm_with",
+                    "person1@example.com, person2@example.com, "
+                    "welcome-bot@zulip.com",
+                ]
+            ],
             True,
             id="private_conv__other_pm2__notified",
         ),
@@ -430,7 +432,7 @@ def test_display_error_if_present(mocker, response, footer_updated):
             id="starred__stream__notified",
         ),
         case(
-            {"type": "private", "to": ["2@aBd%8@random.com"], "content": "fist_bump"},
+            {"type": "private", "to": [1], "content": "fist_bump"},
             [["is", "mentioned"]],
             True,
             id="mentioned__private_no_mention__notified",
@@ -443,10 +445,13 @@ def test_display_error_if_present(mocker, response, footer_updated):
         ),
     ],
 )
-def test_notify_if_message_sent_outside_narrow(mocker, req, narrow, footer_updated):
+def test_notify_if_message_sent_outside_narrow(
+    mocker, req, narrow, footer_updated, user_id_email_dict
+):
     controller = mocker.Mock()
     report_success = controller.report_success
     controller.model.narrow = narrow
+    controller.model.user_id_email_dict = user_id_email_dict
 
     notify_if_message_sent_outside_narrow(req, controller)
 
