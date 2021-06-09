@@ -371,7 +371,6 @@ class TestView:
                 )
             else:
                 view.write_box.private_box_view.assert_called_once_with(
-                    emails=["foo@zulip.com", "bar@gmail.com"],
                     recipient_user_ids=draft["to"],
                 )
 
