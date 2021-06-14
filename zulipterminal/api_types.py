@@ -116,6 +116,7 @@ class UpdateMessageEvent(TypedDict):
     subject: str
     propagate_mode: EditPropagateMode
     stream_id: int
+    new_stream_id: int
 
 
 class ReactionEvent(TypedDict):
