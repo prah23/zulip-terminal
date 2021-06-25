@@ -60,6 +60,25 @@ class WriteBox(urwid.Pile):
         self.model = view.model
         self.view = view
 
+        self._set_compose_attributes_to_defaults()
+
+        self.is_in_typeahead_mode = False
+
+        # Constant indices into self.contents
+        # (CONTAINER=vertical, HEADER/MESSAGE=horizontal)
+        self.FOCUS_CONTAINER_HEADER = 0
+        self.FOCUS_HEADER_BOX_RECIPIENT = 0
+        self.FOCUS_HEADER_BOX_STREAM = 1
+        self.FOCUS_HEADER_BOX_TOPIC = 3
+        self.FOCUS_HEADER_BOX_EDIT = 4
+        self.FOCUS_CONTAINER_MESSAGE = 1
+        self.FOCUS_MESSAGE_BOX_BODY = 0
+        # These are included to allow improved clarity
+        # FIXME: These elements don't acquire focus; replace prefix & in above?
+        self.FOCUS_HEADER_PREFIX_STREAM = 0
+        self.FOCUS_HEADER_PREFIX_TOPIC = 2
+
+    def _set_compose_attributes_to_defaults(self) -> None:
         # Used to indicate user's compose status, "closed" by default
         self.compose_box_status: Literal[
             "open_with_private", "open_with_stream", "closed"
@@ -69,8 +88,6 @@ class WriteBox(urwid.Pile):
         self.msg_edit_id: Optional[int] = None
         # Determines if the message body (content) can be edited
         self.msg_body_edit_enabled = True
-
-        self.is_in_typeahead_mode = False
 
         # Set to int for stream box only
         self.stream_id: Optional[int] = None
@@ -90,19 +107,8 @@ class WriteBox(urwid.Pile):
         self.last_key_update = datetime.now()
         self.idle_status_tracking = False
 
-        # Constant indices into self.contents
-        # (CONTAINER=vertical, HEADER/MESSAGE=horizontal)
-        self.FOCUS_CONTAINER_HEADER = 0
-        self.FOCUS_HEADER_BOX_RECIPIENT = 0
-        self.FOCUS_HEADER_BOX_STREAM = 1
-        self.FOCUS_HEADER_BOX_TOPIC = 3
-        self.FOCUS_HEADER_BOX_EDIT = 4
-        self.FOCUS_CONTAINER_MESSAGE = 1
-        self.FOCUS_MESSAGE_BOX_BODY = 0
-        # These are included to allow improved clarity
-        # FIXME: These elements don't acquire focus; replace prefix & in above?
-        self.FOCUS_HEADER_PREFIX_STREAM = 0
-        self.FOCUS_HEADER_PREFIX_TOPIC = 2
+        if hasattr(self, "msg_write_box"):
+            self.msg_write_box.edit_text = ""
 
     def main_view(self, new: bool) -> Any:
         if new:
@@ -233,7 +239,6 @@ class WriteBox(urwid.Pile):
         self.recipient_user_ids = self.model.get_other_subscribers_in_stream(
             stream_id=stream_id
         )
-        self.to_write_box = None
         self.msg_write_box = ReadlineEdit(
             multiline=True, max_char=self.model.max_message_length
         )
@@ -587,10 +592,8 @@ class WriteBox(urwid.Pile):
                     self.msg_edit_id = None
                     self.keypress(size, "esc")
         elif is_command_key("GO_BACK", key):
-            self.msg_edit_id = None
-            self.msg_body_edit_enabled = True
-            self.compose_box_status = "closed"
             self.send_stop_typing_status()
+            self._set_compose_attributes_to_defaults()
             self.view.controller.exit_editor_mode()
             self.main_view(False)
             self.view.middle_column.set_focus("body")
