@@ -12,6 +12,7 @@ import dateutil.parser
 import urwid
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
+from typing_extensions import Literal
 from tzlocal import get_localzone
 from urwid_readline import ReadlineEdit
 
@@ -58,6 +59,11 @@ class WriteBox(urwid.Pile):
         super().__init__(self.main_view(True))
         self.model = view.model
         self.view = view
+
+        # Used to indicate user's compose status, "closed" by default
+        self.compose_box_status: Literal[
+            "open_with_private", "open_with_stream", "closed"
+        ] = "closed"
 
         # If editing a message, its id - otherwise None
         self.msg_edit_id: Optional[int] = None
@@ -128,6 +134,8 @@ class WriteBox(urwid.Pile):
         )
 
         self.set_editor_mode()
+
+        self.compose_box_status = "open_with_private"
 
         if recipient_user_ids and emails:
             self.recipient_user_ids = recipient_user_ids
@@ -220,6 +228,7 @@ class WriteBox(urwid.Pile):
         self, stream_id: int, caption: str = "", title: str = ""
     ) -> None:
         self.set_editor_mode()
+        self.compose_box_status = "open_with_stream"
         self.stream_id = stream_id
         self.recipient_user_ids = self.model.get_other_subscribers_in_stream(
             stream_id=stream_id
@@ -580,6 +589,7 @@ class WriteBox(urwid.Pile):
         elif is_command_key("GO_BACK", key):
             self.msg_edit_id = None
             self.msg_body_edit_enabled = True
+            self.compose_box_status = "closed"
             self.send_stop_typing_status()
             self.view.controller.exit_editor_mode()
             self.main_view(False)
