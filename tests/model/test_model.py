@@ -1316,6 +1316,7 @@ class TestModel:
             case(
                 {  # Only subject of 1 message is updated.
                     "message_id": 1,
+                    "orig_subject": "old subject",
                     "subject": "new subject",
                     "stream_id": 10,
                     "message_ids": [1],
@@ -1336,6 +1337,9 @@ class TestModel:
                             "subject": "old subject",
                         },
                     },
+                    "topic_msg_ids": {
+                        10: {"old subject": {2}},
+                    },
                     "edited_messages": {1},
                     "topics": {10: []},
                 },
@@ -1345,6 +1349,7 @@ class TestModel:
             case(
                 {  # Subject of 2 messages is updated
                     "message_id": 1,
+                    "orig_subject": "old subject",
                     "subject": "new subject",
                     "stream_id": 10,
                     "message_ids": [1, 2],
@@ -1364,6 +1369,9 @@ class TestModel:
                             "content": "old content",
                             "subject": "new subject",
                         },
+                    },
+                    "topic_msg_ids": {
+                        10: {"old subject": set()},
                     },
                     "edited_messages": {1},
                     "topics": {10: []},
@@ -1393,6 +1401,9 @@ class TestModel:
                             "subject": "old subject",
                         },
                     },
+                    "topic_msg_ids": {
+                        10: {"old subject": {1, 2}},
+                    },
                     "edited_messages": {1},
                     "topics": {10: ["old subject"]},
                 },
@@ -1403,6 +1414,7 @@ class TestModel:
                 {  # Both message content and subject is updated.
                     "message_id": 1,
                     "rendered_content": "<p>new content</p>",
+                    "orig_subject": "old subject",
                     "subject": "new subject",
                     "stream_id": 10,
                     "message_ids": [1],
@@ -1422,6 +1434,9 @@ class TestModel:
                             "content": "old content",
                             "subject": "old subject",
                         },
+                    },
+                    "topic_msg_ids": {
+                        10: {"old subject": {2}},
                     },
                     "edited_messages": {1},
                     "topics": {10: []},
@@ -1450,6 +1465,9 @@ class TestModel:
                             "subject": "old subject",
                         },
                     },
+                    "topic_msg_ids": {
+                        10: {"old subject": {1, 2}},
+                    },
                     "edited_messages": {1},
                     "topics": {10: ["old subject"]},
                 },
@@ -1460,6 +1478,7 @@ class TestModel:
                 {  # message_id not present in index, topic view closed.
                     "message_id": 3,
                     "rendered_content": "<p>new content</p>",
+                    "orig_subject": "old subject",
                     "subject": "new subject",
                     "stream_id": 10,
                     "message_ids": [3],
@@ -1479,6 +1498,9 @@ class TestModel:
                             "content": "old content",
                             "subject": "old subject",
                         },
+                    },
+                    "topic_msg_ids": {
+                        10: {"old subject": {1, 2}},
                     },
                     "edited_messages": set(),
                     "topics": {10: []},  # This resets the cache
@@ -1490,6 +1512,7 @@ class TestModel:
                 {  # message_id not present in index, topic view is enabled.
                     "message_id": 3,
                     "rendered_content": "<p>new content</p>",
+                    "orig_subject": "old subject",
                     "subject": "new subject",
                     "stream_id": 10,
                     "message_ids": [3],
@@ -1510,6 +1533,9 @@ class TestModel:
                             "subject": "old subject",
                         },
                     },
+                    "topic_msg_ids": {
+                        10: {"old subject": {1, 2}},
+                    },
                     "edited_messages": set(),
                     "topics": {10: ["new subject", "old subject"]},
                 },
@@ -1520,6 +1546,7 @@ class TestModel:
                 {  # Message content is updated and topic view is enabled.
                     "message_id": 1,
                     "rendered_content": "<p>new content</p>",
+                    "orig_subject": "old subject",
                     "subject": "new subject",
                     "stream_id": 10,
                     "message_ids": [1],
@@ -1539,6 +1566,9 @@ class TestModel:
                             "content": "old content",
                             "subject": "old subject",
                         },
+                    },
+                    "topic_msg_ids": {
+                        10: {"old subject": {2}},
                     },
                     "edited_messages": {1},
                     "topics": {10: ["new subject", "old subject"]},
@@ -1568,6 +1598,9 @@ class TestModel:
                     "subject": "old subject",
                 }
                 for message_id in [1, 2]
+            },
+            "topic_msg_ids": {
+                10: {"old subject": {1, 2}},
             },
             "edited_messages": set(),
             "topics": {10: ["old subject"]},
